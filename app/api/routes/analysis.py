@@ -19,7 +19,6 @@ from sqlalchemy.orm import Session
 
 from app.ai.reasoning import generate_narrative
 from app.auth.dependencies import get_current_user
-from app.core.config import get_settings
 from app.database.session import get_db
 from app.engine.pipeline import analyze_multi_timeframe
 from app.engine.types import Bar
@@ -416,6 +415,40 @@ async def run_analysis(
     )
 
     return signal
+
+
+# ---------------------------------------------------------------------------
+# APK compatibility endpoint.
+#
+# The current Flutter APK calls:
+# GET /api/v1/analysis/{symbol}
+#
+# This reuses the existing run_analysis() pipeline.
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/{symbol}",
+    response_model=SignalOut,
+)
+async def get_analysis(
+    symbol: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Signal:
+
+    normalized_symbol = canonical_symbol(symbol)
+
+    payload = AnalysisRequest(
+        symbol=normalized_symbol,
+        timeframe="M15",
+        persist=True,
+    )
+
+    return await run_analysis(
+        payload=payload,
+        db=db,
+        current_user=current_user,
+    )
 
 
 # ---------------------------------------------------------------------------
