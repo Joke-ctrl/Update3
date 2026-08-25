@@ -1,0 +1,62 @@
+services:
+  - type: web
+    name: marketkill3r-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: marketkill3r-db
+          property: connectionString
+      # Comma-free JSON array of the exact origins allowed to call this
+      # API from a browser. A native Flutter/mobile client does not send
+      # an Origin header and is unaffected by this setting either way —
+      # set it to your web dashboard's real origin(s) if you have one;
+      # otherwise leave it as a single placeholder origin. It can never
+      # contain "*" once APP_ENV=production (enforced in app/core/config.py).
+      - key: CORS_ORIGINS
+        value: '["https://your-frontend-domain.example"]'
+      - key: ADMIN_EMAIL
+        value: privateinv08@gmail.com
+      - key: LOGIN_OTP_ENABLED
+        value: "true"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_USE_TLS
+        value: "true"
+      - key: EMAIL_FROM
+        value: noreply@marketkill3r.app
+      - key: TELEGRAM_ENABLED
+        value: "true"
+      - key: TELEGRAM_API_URL
+        value: https://api.telegram.org
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TWELVE_DATA_API_KEY
+        sync: false
+      - key: CALENDAR_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: MT5_API_KEY
+        sync: false
+
+databases:
+  - name: marketkill3r-db
+    plan: starter
